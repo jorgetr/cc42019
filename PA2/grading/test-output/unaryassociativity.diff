@@ -1,0 +1,20 @@
+15a16,17
+>         _mul
+> 
+25,26d26
+<           _mul
+< 
+29a30
+>           : _no_type
+35d35
+<         : _no_type
+51,52d50
+<         _plus
+< 
+54a53,54
+>           _plus
+> 
+58d57
+<           : _no_type
+61a61
+>             : _no_type

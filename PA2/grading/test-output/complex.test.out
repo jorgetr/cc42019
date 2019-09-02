@@ -1,0 +1,10 @@
+filename, line 3: syntax error at or near LOCATION
+filename, line 16: syntax error at or near LOCATION
+java.lang.NullPointerException
+	at CUP$CoolParser$actions.CUP$CoolParser$do_action(CoolParser.java:661)
+	at CoolParser.do_action(CoolParser.java:473)
+	at java_cup.runtime.lr_parser.parse(lr_parser.java:569)
+	at Parser.main(Parser.java:37)
+java.lang.Throwable: Unexpected exception in parser
+	at Utilities.fatalError(Utilities.java:40)
+	at Parser.main(Parser.java:45)

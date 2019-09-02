@@ -1,0 +1,12 @@
+	-1 (arithprecedence)	 arithmetic expressions to test precedence
+	-1 (atoi)	 the atoi program
+	-1 (baddispatch1)	 bad dispatch syntax
+	-1 (baddispatch3)	 bad dispatch syntax
+	-1 (badexprlist)	 bad expr lists 
+	-1 (complex)	 a short program
+	-1 (dispatcharglist)	 dispatch with several arguments
+	-1 (dispatchonearg)	 dispatch with one argument
+	-1 (letinitmultiplebindings)	 let expression with multiple bindings
+	-1 (multipleatdispatches)	 at dispatches with differing numbers of arguments
+	-1 (multipledispatches)	 dispatches with differing numbers of arguments
+	-1 (unaryassociativity)	 tests associativity of unary operators
