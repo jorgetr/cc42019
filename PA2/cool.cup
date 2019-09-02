@@ -69,8 +69,10 @@ nonterminal Classes class_list;
 nonterminal class_c class;
 
 nonterminal Feature fe;
-nonterminal Features fes;
+
 nonterminal Formal fo;
+nonterminal Features fes;
+
 nonterminal Formals fos;
 nonterminal Expression expr;
 nonterminal Expressions exprs;
@@ -97,17 +99,13 @@ program
         ;
 
 class_list
-	/* single class */
-	::= class:c
-	    {: RESULT = (new Classes(curr_lineno())).appendElement(c); :}
-	/* several classes */
+
 	| class_list:cl class:c
 	    {: RESULT = cl.appendElement(c); :}
 	| class_list:cl error
             {: RESULT = cl; :}
 	;
 
-/* If no parent is specified, the class inherits from the Object class */
 class
 	::= CLASS TYPEID:n LBRACE fes:f RBRACE SEMI
 	    {: RESULT = new class_c(curr_lineno(), n,
@@ -120,8 +118,6 @@ class
 	;
 
 
-/*feature ::= ID( [ formal [[, formal]]∗ ] ) : TYPE { expr }
-| ID : TYPE [ <- expr ]*/
 fe
 	::=
     |OBJECTID:a LPAREN fos:b RPAREN COLON TYPEID:c LBRACE expr:d RBRACE SEMI
@@ -133,8 +129,17 @@ fe
 
     ;
 
-/* formal ::= ID : TYPE*
-PROBLEMA CUANDO EN EL feature necesitas formal asterisco */
+		fes
+			::=
+		            {: RESULT = new Features(curr_lineno()); :}
+		        | fe:a
+		            {: RESULT = new Features(curr_lineno()).appendElement(a); :}
+			| fes:a fe:b
+		            {: RESULT = a.appendElement(b); :}
+			| error SEMI
+				{: RESULT = new Features(curr_lineno()); :}
+		        ;
+
 fo
 	::= OBJECTID:a COLON TYPEID:b
             {: RESULT = new formalc(curr_lineno(), a, b); :}
@@ -151,22 +156,9 @@ fos
             {: RESULT = a.appendElement(b); :}
         ;
 
-/* tambien necesito fes porque class ::= class TYPE [inherits TYPE] { [[feature; ]]∗} como se pueden poner mas de una*/
-
-fes
-	::=
-            {: RESULT = new Features(curr_lineno()); :}
-        | fe:a
-            {: RESULT = new Features(curr_lineno()).appendElement(a); :}
-	| fes:a fe:b
-            {: RESULT = a.appendElement(b); :}
-	| error SEMI
-		{: RESULT = new Features(curr_lineno()); :}
-        ;
 
 
 
-//expr ::= ID <- expr
 expr
 	::= OBJECTID:a ASSIGN expr:b
            {: RESULT = new assign(curr_lineno(), a, b); :}
@@ -188,28 +180,22 @@ expr
             {: RESULT = new new_(curr_lineno(), a); :}
     	| ISVOID expr:a
             {: RESULT = new isvoid(curr_lineno(), a); :}
-    //let ID : TYPE [ <- expr ] [[,ID : TYPE [ <- expr ]]]∗ in expr
+
     	| LET let:e
             {: RESULT = e; :}
 	| CASE expr:a OF branchl:b ESAC
 		{: RESULT = new typcase(curr_lineno(), a, b); :}
-	// Block muchas expresiones
+
 	   | LBRACE exprs:a RBRACE
 	   {: RESULT=new block(curr_lineno(), a); :}
 
-	// Blocks
-	 | LBRACE error SEMI exprs RBRACE
 
-	// New
+	 | LBRACE error SEMI exprs RBRACE
 	   | NEW TYPEID:a
 	   {: RESULT=new new_(curr_lineno(), a); :}
-
-	// IsVoid
 	   | ISVOID expr:a
 	   {: RESULT=new isvoid(curr_lineno(), a); :}
 
-
-	// operaciones basicas
 	| NEG expr:a
             {: RESULT = new neg(curr_lineno(), a); :}
 	| expr:a MULT expr:b
@@ -224,21 +210,29 @@ expr
             {: RESULT = new comp(curr_lineno(), a); :}
 
 
+						exprs
+						        ::=
+						            {: RESULT = new Expressions(curr_lineno()); :}
+						        | expr:a SEMI
+						            {: RESULT = new Expressions(curr_lineno()).appendElement(a); :}
 
-	// menor que
+							| exprs:a expr:b SEMI
+							    {: RESULT=a.appendElement(b); :}
+							| exprs:a COMMA expr:b
+						            {: RESULT = a.appendElement(b); :}
+							| error SEMI
+						        ;
+
+
+
 	| expr:a LT expr:b
             {: RESULT = new lt(curr_lineno(), a, b); :}
-	// menor que o igual
         | expr:a LE expr:b
             {: RESULT = new leq(curr_lineno(), a, b); :}
-	// igual
         | expr:a EQ expr:b
             {: RESULT = new eq(curr_lineno(), a, b); :}
-	// parentesis
         | LPAREN expr:a RPAREN
             {: RESULT  = a; :}
-
-
         | OBJECTID:a
             {: RESULT = new object(curr_lineno(), a); :}
         | INT_CONST:a
@@ -251,19 +245,6 @@ expr
 	;
 
 
-exprs
-        ::=
-            {: RESULT = new Expressions(curr_lineno()); :}
-        | expr:a SEMI
-            {: RESULT = new Expressions(curr_lineno()).appendElement(a); :}
-
-	| exprs:a expr:b SEMI
-	    {: RESULT=a.appendElement(b); :}
-	| exprs:a COMMA expr:b
-            {: RESULT = a.appendElement(b); :}
-	| error SEMI
-        ;
-
 
 branchl
 	::=
@@ -273,11 +254,6 @@ branchl
 		{: RESULT = a.appendElement(b); :}
 	;
 
-branch
-	::=
-	OBJECTID:a COLON TYPEID:b DARROW expr:c SEMI
-		{: RESULT = new branch(curr_lineno(), a, b, c);  :}
-	;
 
 
 let
@@ -292,3 +268,9 @@ let
         {: RESULT = new let(curr_lineno(),a,b,c,d); :}
 	|	error COMMA let
         ;
+
+				branch
+					::=
+					OBJECTID:a COLON TYPEID:b DARROW expr:c SEMI
+						{: RESULT = new branch(curr_lineno(), a, b, c);  :}
+					;
